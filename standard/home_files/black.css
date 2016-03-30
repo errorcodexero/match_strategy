@@ -1,0 +1,73 @@
+/**
+ * @package adamos pro
+ * @since adamos pro 1.0
+ *
+ */
+#masthead-wrap {
+	border-bottom: 1px solid #666;
+}
+.main-navigation a {
+	color: #CCC;
+}
+.main-navigation ul ul a {
+	color: #CCC;
+}
+.main-navigation li:hover > a,
+.main-navigation li.current_page_item a,
+.main-navigation li.current-menu-item a {
+	background-color: #666;
+}
+.main-navigation ul ul a:hover {
+	color: #FFF;
+}
+.main-navigation ul ul ul a:hover {
+	color: #FFF;
+}
+.featuretext_top h3 {
+	color: #222;
+}
+.section_thumbnails h3,
+.featuretext_middle > h3 {
+	color: #222;
+	border-bottom: 1px solid #EEE;
+}
+.site-info {
+	border-top: 1px solid #444;
+}
+.sticky h1 {
+	border-bottom: 6px solid #333;
+}
+.widget-title {
+	color: #FFF;
+}
+.entry-title, .page-title {
+	color: #222;
+}
+.entry-title a, .page-title a {
+	color: #222;
+}
+.nav-previous a, .nav-next a {
+	color: #222;
+}
+.nav-previous a:hover, .nav-next a:hover {
+	color: #999;
+}
+.menu-toggle {
+	border-bottom: 1px solid #333;
+	border-top: 1px solid #333;
+}
+.main-small-navigation li:hover > a,
+.main-small-navigation li.current_page_item a,
+.main-small-navigation li.current-menu-item a,
+.main-small-navigation ul ul a:hover {
+	color: #999;
+}
+.authorAvatar img{
+	border: 4px solid #666;
+}
+.entry-content a, .entry-content a:visited, .entry-summary a, .entry-summary a:visited{
+    color: #69C;
+}
+.entry-content a:hover{
+    color: #666;
+}
