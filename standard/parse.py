@@ -88,8 +88,12 @@ def run(filename,team_number):
 		if x=='': return 0
 		return int(x)
 
+	def int_or_none(x):
+		if x=='': return None
+		return int(x)
+
 	data_types={
-		'Team':int,
+		'Team':int_or_none,
 		'Teleop High Goals':int1,
 		'Teleop Low Goals':int1,
 		'Climb Flag':bool,
