@@ -60,9 +60,9 @@ def alternate_data_source(team_number):
 	data=map(parse_line,file('../baseline/out.txt').read().splitlines())
 	f=filter(lambda x: x[0]==team_number,data)
 	assert len(f)==1
-	balls_per_match=f[0][1]
-	def_per_match=f[0][2]
-	climb_or_challenge=0
+	def_per_match=f[0][1]
+	balls_per_match=f[0][2]
+	climb_or_challenge=1 #If have no idea, assume that can challenge
 	climb=0
 	defense_averages=pairs_to_map(map(lambda x: (x,0),defense_types))
 	print '%d:'%team_number,'Using alternate data source',f[0]
@@ -155,7 +155,7 @@ def run(filename,team_number):
 		return num/denom
 
 	def mean1(a):
-		if len(a): return sum(a)/len(a)
+		if len(a): return (0.0+sum(a))/len(a)
 		return 0
 
 	climb_per_match=mean1(get_col('Climb Flag'))
