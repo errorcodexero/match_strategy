@@ -75,16 +75,17 @@ def normal_pdf(z_score):
 	return 1-normal_pdf(-z_score)
 	
 def win_px(score,defense_played):
-	#this is very rough
-	mean=67
+	#Updated based on The Blue Alliance's average score for week 4.
+	mean=77.59
 
 	#best case scenario for defense
 	#mean*=(3-defense_played)/3
 
 	#maybe a more realistic model of defense?
-	mean*=(3-defense_played*.05)/3
+	#18% is estimate of portion of scoring that's based on balls
+	mean*=(3-defense_played*.18)/3
 	
-	stddev=20
+	stddev=25 #Also based on TBA
 
 	#def won(): return random.gauss(mean,stddev)<score
 	#n=100
@@ -93,15 +94,7 @@ def win_px(score,defense_played):
 	
 	z_score=(score-mean)/stddev
 	return normal_pdf(z_score)
-	
-	#if z_score<=-3: return .01
-	#if z_score<=-2.5: return 1-.95
-	#if z_score<=-.5: return 1-.69
-	#if z_score<=.5: return .5
-	#if z_score<=1.5: return .69
-	#if z_score<=2.5: return .95
-	#return .99
-	
+
 game_length=2*60+15 #seconds
 
 #bool->[[int]]->(str,str,str)->(float,float)
