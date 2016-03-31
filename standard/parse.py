@@ -31,8 +31,7 @@ def transpose(a):
 	#	r[i].append(elem)
 	return r
 
-#str->int->(int,int)
-def run(filename,team_number):
+def parse_csv(filename):
 	m=map(lambda x: x.split(','),file(filename).read().splitlines())
 
 	#for original version:
@@ -46,16 +45,24 @@ def run(filename,team_number):
 	#print 'labels:',labels
 
 	info=map(lambda x: pairs_to_map(zip(labels,x)),data)
+	return info
+
+#str->int->(int,int)
+def run(filename,team_number):
+	info=parse_csv(filename)
 
 	#If there is no scouter recorded, assume the rest of the columns are junk!
 	#info=filter(lambda x: x['Scouter'],info)
 
 	#basic teleop ones, anyway
-	cross_columns=['Portcullis Teleop Crossings', 'Cheval Teleop Crossings', 'Moat Teleop Crossings', 'Ramparts Teleop Crossings', 'Drawbridge Teleop Crossings', 'Sally Port Teleop Crossings', 'Rock Wall Teleop Crossings', 'Rough Terrain Teleop Crossings', 'Low Bar Teleop Crossings']
+	#cross_columns=['Portcullis Teleop Crossings', 'Cheval Teleop Crossings', 'Moat Teleop Crossings', 'Ramparts Teleop Crossings', 'Drawbridge Teleop Crossings', 'Sally Port Teleop Crossings', 'Rock Wall Teleop Crossings', 'Rough Terrain Teleop Crossings', 'Low Bar Teleop Crossings']
 	defense_types=['Portcullis', 'Cheval', 'Moat', 'Ramparts', 'Drawbridge', 'Sally Port', 'Rock Wall', 'Rough Terrain', 'Low Bar']
 
-	for a in defense_types:
-		cross_columns.append('%s Auto Crossings'%a)
+	auto_crossings=map(lambda a: '%s Auto Crossings'%a,defense_types)
+	teleop_unscored=map(lambda a: '%s Unscored Crossings'%a,defense_types)
+	teleop_scored=map(lambda a: '%s Scored Crossings'%a,defense_types)
+	teleop_crossings=teleop_unscored+teleop_scored
+	cross_columns=auto_crossings+teleop_unscored+teleop_scored
 
 	def int1(x):
 		if x=='': return 0
@@ -137,7 +144,7 @@ def run(filename,team_number):
 		#print 'x:',x
 		#print get_col(x)
 		denom=sum(get_col(x))
-		num=sum(get_col(name+' Teleop Crossings'))
+		num=sum(get_col(name+' Scored Crossings')+get_col(name+' Unscored Crossings'))
 		if denom==0: return 0
 		return (0.0+num)/denom
 
@@ -154,8 +161,30 @@ def run(filename,team_number):
 	print 'rr:',rr
 	return rr
 
+#str->(int(match#)->(str(color)->[int(team#)]))
+def parse_match_schedule(filename):
+	#lines=file(filename).read().splitlines()
+	#def parse_line(s):
+	#	s.split()
+	info=parse_csv(filename)
+	r={}
+	def add_entry(match,alliance,team):
+		if not r.has_key(match): r[match]={}
+		match_info=r[match];
+		if not match_info.has_key(alliance): match_info[alliance]=[]
+		alliance_info=match_info[alliance]
+		alliance_info.append(team)
+	for line in info:
+		add_entry(int(line['Match']),line['Alliance'],int(line['Team']))
+	return r
+
 if __name__=='__main__':
-	team_number=1425
+	from optparse import OptionParser
+	p=OptionParser()
+	p.add_option('--team',type=int,default=1425)
+	options,args=p.parse_args()
+	assert len(args)==0
+	team_number=options.team
 	filename="StrongholdScoutingWorkbookDEMO.csv"
 	balls_per_match,def_per_match,challenge,climb,defenses=run(filename,team_number)
 	print 'balls per match:',balls_per_match

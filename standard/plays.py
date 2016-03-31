@@ -223,6 +223,8 @@ filename='StrongholdScoutingWorkbookDEMO.csv'
 
 #[int]->[str]
 def get_defense_data(opponents):
+	import parse
+
 	defense_info=map(lambda team: parse.run(filename,team)[-1],opponents)
 	print defense_info
 	by_category=[
@@ -254,29 +256,9 @@ verbose_strat={
 	'cross & feed':'Run balls from the neutral zone to the enemies\' courtyard, while also scoring a defensive crossing each cycle'
 	}
 	
-
-if __name__=='__main__':
-	from optparse import OptionParser
-	p=OptionParser()
-	p.add_option('--general',action='store_true')
-	p.add_option('--match')
-	options,args=p.parse_args()
-
-	if options.general:
-		random_best()
-		sys.exit(0)
-
-	if options.match:
-		raise 'nyi'
-
-	if len(args)!=6:
-		print 'enter 6 team numbers'
-		sys.exit(1)
-
-	teams=map(int,args)
-	print teams
-	allied_teams=teams[0:3]
-	opponents=teams[3:6]
+def run_with_teams(allied_teams,opponents):
+	print 'allies:',allied_teams
+	print 'opponents:',opponents
 
 	import parse
 	def get_data(team):
@@ -336,12 +318,12 @@ if __name__=='__main__':
 					''.join(map(th,[
 						'Ranking points',
 						'Score',
-						teams[0],
-						teams[1],
-						teams[2],
-						teams[0],
-						teams[1],
-						teams[2]
+						allied_teams[0],
+						allied_teams[1],
+						allied_teams[2],
+						allied_teams[0],
+						allied_teams[1],
+						allied_teams[2]
 						]))
 					)+
 				''.join(map(col,reversed(m[-3:])))
@@ -369,3 +351,36 @@ if __name__=='__main__':
 	print>>f,open('post.html').read()
 	f.close()
 	os.system('firefox out.html')
+
+if __name__=='__main__':
+	from optparse import OptionParser
+	p=OptionParser()
+	p.add_option('--general',action='store_true')
+	p.add_option('--match',type=int)
+	options,args=p.parse_args()
+
+	if options.general:
+		random_best()
+		sys.exit(0)
+
+	if options.match:
+		from parse import parse_match_schedule
+		teams=parse_match_schedule(filename)[options.match]
+		print teams
+		if 1425 in teams['Red']:
+			run_with_teams(teams['Read'],teams['Blue'])
+			sys.exit(0)
+		run_with_teams(teams['Blue'],teams['Red'])
+		sys.exit(0)
+
+	if len(args)!=6:
+		print 'enter 6 team numbers'
+		sys.exit(1)
+
+	teams=map(int,args)
+	print teams
+	allied_teams=teams[0:3]
+	opponents=teams[3:6]
+
+	run_with_teams(allied_teams,opponents)
+
