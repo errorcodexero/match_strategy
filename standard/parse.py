@@ -47,6 +47,27 @@ def parse_csv(filename):
 	info=map(lambda x: pairs_to_map(zip(labels,x)),data)
 	return info
 
+defense_types=['Portcullis', 'Cheval', 'Moat', 'Ramparts', 'Drawbridge', 'Sally Port', 'Rock Wall', 'Rough Terrain', 'Low Bar']
+
+#int->...
+def alternate_data_source(team_number):
+	#This uses data from the 'baseline' directory to serve its purposes
+
+	#rr=(balls_per_match,def_per_match,(climb_per_match+challenge_per_match)>.5,climb_per_match>.5,defense_averages)
+	def parse_line(s):
+		sp=s.split()
+		return int(sp[0]),float(sp[1]),float(sp[2])
+	data=map(parse_line,file('../baseline/out.txt').read().splitlines())
+	f=filter(lambda x: x[0]==team_number,data)
+	assert len(f)==1
+	balls_per_match=f[0][1]
+	def_per_match=f[0][2]
+	climb_or_challenge=0
+	climb=0
+	defense_averages=pairs_to_map(map(lambda x: (x,0),defense_types))
+	print '%d:'%team_number,'Using alternate data source',f[0]
+	return (balls_per_match,def_per_match,climb_or_challenge,climb,defense_averages)
+
 #str->int->(int,int)
 def run(filename,team_number):
 	info=parse_csv(filename)
@@ -56,7 +77,6 @@ def run(filename,team_number):
 
 	#basic teleop ones, anyway
 	#cross_columns=['Portcullis Teleop Crossings', 'Cheval Teleop Crossings', 'Moat Teleop Crossings', 'Ramparts Teleop Crossings', 'Drawbridge Teleop Crossings', 'Sally Port Teleop Crossings', 'Rock Wall Teleop Crossings', 'Rough Terrain Teleop Crossings', 'Low Bar Teleop Crossings']
-	defense_types=['Portcullis', 'Cheval', 'Moat', 'Ramparts', 'Drawbridge', 'Sally Port', 'Rock Wall', 'Rough Terrain', 'Low Bar']
 
 	auto_crossings=map(lambda a: '%s Auto Crossings'%a,defense_types)
 	teleop_unscored=map(lambda a: '%s Unscored Crossings'%a,defense_types)
@@ -91,6 +111,9 @@ def run(filename,team_number):
 
 	#for a in info: print a
 	relevant=filter(lambda x: x['Team']==team_number,info)
+
+	if len(relevant)<2:
+		return alternate_data_source(team_number)
 
 	#for a in relevant: print a
 	def get_col(name):
@@ -163,9 +186,6 @@ def run(filename,team_number):
 
 #str->(int(match#)->(str(color)->[int(team#)]))
 def parse_match_schedule(filename):
-	#lines=file(filename).read().splitlines()
-	#def parse_line(s):
-	#	s.split()
 	info=parse_csv(filename)
 	r={}
 	def add_entry(match,alliance,team):
