@@ -42,6 +42,9 @@ def parse_csv(filename):
 	labels=m[0]
 	data=m[1:]
 
+	#Ignore the lines that don't start with a match # so that ignore second table that's down below in newer version
+	data=filter(lambda x: x[0]!='',data)
+
 	#print 'labels:',labels
 
 	info=map(lambda x: pairs_to_map(zip(labels,x)),data)
@@ -49,7 +52,19 @@ def parse_csv(filename):
 
 defense_types=['Portcullis', 'Cheval', 'Moat', 'Ramparts', 'Drawbridge', 'Sally Port', 'Rock Wall', 'Rough Terrain', 'Low Bar']
 
-#int->...
+#str->int
+def int1(x):
+	if x=='': return 0
+	return int(x)
+
+#any(a),any(b) => (a->b) -> [b]
+def values(m):
+	r=[]
+	for key in m:
+		r.append(m[key])
+	return r
+
+#int->(float(ball time),float(defense time),bool(challenge),bool(climb),(str->float)(defenses crossed per match))
 def alternate_data_source(team_number):
 	#This uses data from the 'baseline' directory to serve its purposes
 
@@ -59,16 +74,54 @@ def alternate_data_source(team_number):
 		return int(sp[0]),float(sp[1]),float(sp[2])
 	data=map(parse_line,file('../baseline/out.txt').read().splitlines())
 	f=filter(lambda x: x[0]==team_number,data)
+	assert len(f)<=1
+	if len(f)==0:
+		print 'Error: Non-existant team: %d'%team_number
+		sys.exit(1)
+
 	assert len(f)==1
 	def_per_match=f[0][1]
 	balls_per_match=f[0][2]
 	climb_or_challenge=1 #If have no idea, assume that can challenge
 	climb=0
-	defense_averages=pairs_to_map(map(lambda x: (x,0),defense_types))
-	print '%d:'%team_number,'Using alternate data source',f[0]
-	return (balls_per_match,def_per_match,climb_or_challenge,climb,defense_averages)
 
-#str->int->(int,int)
+	def1=parse_csv('video_data.csv')
+	def process_line(s):
+		team=int(s['Team'])
+		r={}
+		def get_name(d):
+			if d=='Cheval': return 'Cheval-de-frise'
+			if d=='Ramparts': return 'Rampart'
+			return d
+		for d in defense_types:
+			found=s['Pre-Event '+get_name(d)]
+			#print found
+			r[d]=int1(found)
+
+		#If all -1 that means no data available, so put in None
+		v=set(values(r))
+		if list(v)==[-1]:
+			r=None
+
+		return team,r
+	def_info=pairs_to_map(map(process_line,def1))
+
+	def defense_averages():
+		if def_info.has_key(team_number):
+			d1=def_info[team_number]
+			if d1: return d1
+		return pairs_to_map(map(lambda x: (x,0),defense_types))
+
+	print '%d:'%team_number,'Using alternate data source',f[0]
+
+	#todo: deduplicate next line
+	game_length=2*60+15
+
+	times=game_length/max(1,(balls_per_match+def_per_match))
+	
+	return (times,times,climb_or_challenge,climb,defense_averages())
+
+#str->int->(float(ball time),float(defense time),bool(challenge),bool(climb),(str->float)(defenses crossed per match))
 def run(filename,team_number):
 	info=parse_csv(filename)
 
@@ -83,10 +136,6 @@ def run(filename,team_number):
 	teleop_scored=map(lambda a: '%s Scored Crossings'%a,defense_types)
 	teleop_crossings=teleop_unscored+teleop_scored
 	cross_columns=auto_crossings+teleop_unscored+teleop_scored
-
-	def int1(x):
-		if x=='': return 0
-		return int(x)
 
 	def int_or_none(x):
 		if x=='': return None
@@ -180,11 +229,12 @@ def run(filename,team_number):
 	#print 'by match ball:',by_match_ball
 	#print 'by match def:',by_match_def
 
-	balls_per_match=match_time/weighted_average(by_match_ball)
-	def_per_match=match_time/weighted_average(by_match_def)
+	#balls_per_match=match_time/weighted_average(by_match_ball)
+	#def_per_match=match_time/weighted_average(by_match_def)
 
 	#return balls_per_match,def_per_match,(climb_per_match+challenge_per_match)>.5,climb_per_match>.5,defense_averages
-	rr=(balls_per_match,def_per_match,(climb_per_match+challenge_per_match)>.5,climb_per_match>.5,defense_averages)
+	#rr=(balls_per_match,def_per_match,(climb_per_match+challenge_per_match)>.5,climb_per_match>.5,defense_averages)
+	rr=(weighted_average(by_match_ball),weighted_average(by_match_def),(climb_per_match+challenge_per_match)>.5,climb_per_match>.5,defense_averages)
 	print 'rr:',rr
 	return rr
 
@@ -211,8 +261,8 @@ if __name__=='__main__':
 	team_number=options.team
 	filename="StrongholdScoutingWorkbookDEMO.csv"
 	balls_per_match,def_per_match,challenge,climb,defenses=run(filename,team_number)
-	print 'balls per match:',balls_per_match
-	print 'defenses per match:',def_per_match
+	print 'ball time:',balls_per_match
+	print 'defenses time:',def_per_match
 	print 'challenge:',challenge
 	print 'climb:',climb
 	print 'def:',defenses

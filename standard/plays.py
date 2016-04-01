@@ -263,10 +263,10 @@ def run_with_teams(eliminations,allied_teams,opponents):
 	import parse
 	def get_data(team):
 		p=parse.run(filename,team)
-		def g(x):
-			if x==0: return game_length
-			return game_length/x
-		return g(p[0]),g(p[1]*2),g(2*p[1]),p[2],p[3]
+		print 'parsed for',team,':',p
+		ball_time,defense_time,challenge,climb,defense_info=p
+		
+		return ball_time/2,defense_time,ball_time/2,challenge,climb
 	alliance=map(get_data,allied_teams)
 	print alliance
 	unsorted_options=[]
