@@ -5,6 +5,8 @@ import sys
 #28.33
 #6.71
 
+def mean(a): return (0.0+sum(a))/len(a)
+
 #any(a),any(b) => [(a,b)]->(a->b)
 def pairs_to_map(a):
 	r={}
@@ -132,8 +134,13 @@ def run(filename,team_number):
 	#cross_columns=['Portcullis Teleop Crossings', 'Cheval Teleop Crossings', 'Moat Teleop Crossings', 'Ramparts Teleop Crossings', 'Drawbridge Teleop Crossings', 'Sally Port Teleop Crossings', 'Rock Wall Teleop Crossings', 'Rough Terrain Teleop Crossings', 'Low Bar Teleop Crossings']
 
 	auto_crossings=map(lambda a: '%s Auto Crossings'%a,defense_types)
-	teleop_unscored=map(lambda a: '%s Unscored Crossings'%a,defense_types)
-	teleop_scored=map(lambda a: '%s Scored Crossings'%a,defense_types)
+	#teleop_unscored=map(lambda a: '%s Unscored Crossings'%a,defense_types)
+	teleop_unscored=map(lambda a: '%s Teleop Crossings'%a,defense_types)
+	#teleop_scored=map(lambda a: '%s Scored Crossings'%a,defense_types)
+	def teleop_scored_name(s):
+		if s=='Moat': return 'Moat Scored Crosings'
+		return '%s Scored Crossings'%s
+	teleop_scored=map(teleop_scored_name,defense_types)
 	teleop_crossings=teleop_unscored+teleop_scored
 	cross_columns=auto_crossings+teleop_unscored+teleop_scored
 
@@ -148,7 +155,8 @@ def run(filename,team_number):
 		'Climb Flag':bool,
 		'Challenge Flag':bool,
 		'Auto High Goals':int1,
-		'Auto Low Goals':int1
+		'Auto Low Goals':int1,
+		'Low Bar Available':int
 		}
 
 	for col in cross_columns:
@@ -163,13 +171,15 @@ def run(filename,team_number):
 				row[key]=data_types[key](row[key])
 
 	#for a in info: print a
-	relevant=filter(lambda x: x['Team']==team_number,info)
-
+	relevant=filter(lambda x: x['Team']==team_number and x['Low Bar Available']==1,info)
+	
 	if len(relevant)<2:
 		return alternate_data_source(team_number)
 
 	#for a in relevant: print a
 	def get_col(name):
+		if name=='Moat Scored Crossings': name='Moat Scored Crosings'
+		#print 'col ',name,':',map(lambda x: x[name],relevant)
 		return map(lambda x: x[name],relevant)
 	highs=get_col('Teleop High Goals')+get_col('Auto High Goals')
 	lows=get_col('Teleop Low Goals')+get_col('Auto Low Goals')
@@ -187,7 +197,8 @@ def run(filename,team_number):
 
 	#start of trying to do fancier stuff
 	by_match=zip(map(lambda x: x[0]+x[1],zip(highs,lows)),def_by_match)
-	print 'Team',team_number
+	print 'Team',team_number,
+	print mean(firsts(by_match)),mean(seconds(by_match))
 	print 'by_match:',by_match
 
 	#time per defense = average of average time in matches weighted by how many defenses did
@@ -202,7 +213,7 @@ def run(filename,team_number):
 		if defenses:
 			by_match_def.append((t,defenses/s))
 	def weighted_average(x):
-		num=sum(firsts(x))
+		num=sum(map(lambda y: y[0]*y[1],x))
 		denom=sum(seconds(x))
 		if denom==0: return 60 #very application specific
 		return num/denom
@@ -220,7 +231,7 @@ def run(filename,team_number):
 		#print 'x:',x
 		#print get_col(x)
 		denom=sum(get_col(x))
-		num=sum(get_col(name+' Scored Crossings')+get_col(name+' Unscored Crossings'))
+		num=sum(get_col(name+' Scored Crossings')+get_col(name+' Teleop Crossings'))
 		if denom==0: return 0
 		return (0.0+num)/denom
 

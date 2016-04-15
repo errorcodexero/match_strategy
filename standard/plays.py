@@ -158,7 +158,7 @@ def value(eliminations_mode,alliance,strategy):
 	POINTS_PER_BALL=4 #could change this for high/low scoring
 	score=defenses_crossed*5+balls_scored*POINTS_PER_BALL+5*challenged+15*climbed
 	breached=(defenses_crossed>=8)
-	captured=(balls_scored>=8 and challenged+climbed==3)
+	captured=((balls_scored>=8) and (challenged+climbed==3))
 	ranking_points=breached+captured+2*win_px(score,defense_played)
 	if eliminations:
 		return (0,score+20*breached+25*captured)
@@ -372,7 +372,7 @@ if __name__=='__main__':
 		teams=parse_match_schedule(filename)[options.match]
 		print teams
 		if 1425 in teams['Red']:
-			run_with_teams(eliminations,teams['Read'],teams['Blue'])
+			run_with_teams(eliminations,teams['Red'],teams['Blue'])
 			sys.exit(0)
 		run_with_teams(eliminations,teams['Blue'],teams['Red'])
 		sys.exit(0)
