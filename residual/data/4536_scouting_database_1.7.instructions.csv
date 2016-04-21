@@ -1,0 +1,49 @@
+This is a a scouting database which calculates component calculated contributions (OPRs) using the data from the FIRST API. Thanks to Ether for providing this data in a usable format. ;
+As this project is still in its infancy. Please report any bugs or potential improvements to Caleb Sykes via PM or email (calebsyk@gmail.com). ;
+Each sheet currently contains data from a distinct FRC event. A new database will be published weekly following updates to Ether's data and the 2834 scouting database. ;
+Be extremely careful when using the individual defense crossings (columns J-Q on each sheet). ;
+At a given event, if a defense is chosen fewer times than there are teams at the event, a #NUM! error will appear. ;
+If a defense is chosen less than twice as many times as there are teams at the event, place limited faith in the numbers. ;
+;
+"What follows are brief descriptions of each category listed in the event sheets and in ""world results."" ";
+Category;Description
+team;The FRC team number
+auto Boulders Low;The number of boulders scored in the low goal in autonomous the given team contributes
+auto Boulders High;The number of boulders scored in the high goal in autonomous the given team contributes
+teleop Boulders Low;The number of boulders scored in the low goal in teleop the given team contributes
+teleop Boulders High;The number of boulders scored in the high goal in teleop the given team contributes
+subtracted tower strength;The amount of strength the given team takes away from the tower
+teleop Tower Captured;The contribution to capturing of the given team (0 = does not contribute to capture, 1 = captures solo without assistance)
+teleop Defenses Breached;The contribution to breaching of the given team (0 = does not contribute to breaches, 1 = breaches solo without assistance)
+low bar crossings;The number of scored low bar crossings the given team contributes
+portcullis crossings;See disclaimer above. The number of scored portcullis crossings the given team contributes. 
+cheval de frise crossings;See disclaimer above. The number of scored cheval de frise crossings the given team contributes. 
+moat crossings;See disclaimer above. The number of scored moat crossings the given team contributes. 
+ramparts crossings;See disclaimer above. The number of scored ramparts crossings the given team contributes. 
+drawbridge crossings;See disclaimer above. The number of scored drawbridge crossings the given team contributes. 
+sally port crossings;See disclaimer above. The number of scored sally port crossings the given team contributes. 
+rock wall crossings;See disclaimer above. The number of scored rock wall crossings the given team contributes. 
+rough terrain crossings;See disclaimer above. The number of scored rough terrain crossings the given team contributes. 
+A crossings;The number of scored A defense crossings the given team contributes
+B crossings;The number of scored B defense crossings the given team contributes
+C crossings;The number of scored C defense crossings the given team contributes
+D crossings;The number of scored D defense crossings the given team contributes
+foul Count;The number of fouls the given team receives. A higher number indicates that this team was penalized more often. 
+fouls drawn;The number of fouls the given team draws. A higher number indicates that this team drew more fouls. 
+tech Foul Count;The number of technical fouls the given team receives. A higher number indicates that this team was penalized more often. 
+tech fouls drawn;The number of technical fouls the given team draws. A higher number indicates that this team drew more fouls. 
+auto Points;The total autonomous points the given team contributes. 
+auto Reach Points;The autonomous reach points the given team contributes. 
+auto Crossing Points;The autonomous crossing points the given team contributes.
+auto Boulder Points;The autonomous boulder points the given team contributes.
+teleop Points including challenge/scale;The total teleop points the given team contributes.
+teleop Crossing Points;The teleop crossing points the given team contributes.
+teleop Boulder Points;The teleop boulder points the given team contributes.
+teleop Challenge Points;The total challenge points the given team contributes.
+teleop Scale Points;The scale points the given team contributes.
+challenge or scale count;The likelihood the given team will either challenge or scale. 
+foul Points;The total foulpoints the given team draws.
+total Points;The total points the given team contributes.
+cross defense count;The total number of scored crosses the given team contributes. 
+eOPR1;elimination OPR, calculated with method 1. An attempt to account for differences in scoring between qualification and elimination rounds. Equivalent to (total points) + 3.125*(subtracted tower strength) + 2.5*(cross defense count). This method should provide better results when used at weaker events where captures are infrequent. 
+eOPR2;elimination OPR, calculated with method 2. An attempt to account for differences in scoring between qualification and elimination rounds. Equivalent to (total points) + 20*(teleop Defenses Breached) + 25*(teleop Tower Captured). This method should provide better results when used at stronger events where captures are more common. 

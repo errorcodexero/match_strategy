@@ -97,8 +97,13 @@ def win_px(score,defense_played):
 
 game_length=2*60+15 #seconds
 
+class Game_rules:
+	def __init__(self,eliminations,capture_balls):
+		self.eliminations=eliminations #bool
+		self.capture_balls=capture_balls #int
+
 #bool->[[int]]->(str,str,str)->(float,float)
-def value(eliminations_mode,alliance,strategy):
+def value(game_rules,alliance,strategy):
 	balls_scored=0
 	defenses_crossed=0
 	feeds_per_game=0
@@ -158,9 +163,9 @@ def value(eliminations_mode,alliance,strategy):
 	POINTS_PER_BALL=4 #could change this for high/low scoring
 	score=defenses_crossed*5+balls_scored*POINTS_PER_BALL+5*challenged+15*climbed
 	breached=(defenses_crossed>=8)
-	captured=(balls_scored>=8 and challenged+climbed==3)
+	captured=((balls_scored>=game_rules.capture_balls) and (challenged+climbed==3))
 	ranking_points=breached+captured+2*win_px(score,defense_played)
-	if eliminations:
+	if game_rules.eliminations:
 		return (0,score+20*breached+25*captured)
 	#Qualifications mode
 	return (ranking_points,score)#,defenses_crossed,balls_scored,score)
@@ -200,10 +205,10 @@ def alliance_versions(a):
 		]
 
 #bool->?->?
-def best_strat(eliminations,alliance):
+def best_strat(game_rules,alliance):
 	def inner_value(strat):
-		return max(map(lambda x: value(eliminations,x,strat),alliance_versions(alliance)))
-	return argmax(lambda x: value(eliminations,alliance,x),combos)
+		return max(map(lambda x: value(game_rules,x,strat),alliance_versions(alliance)))
+	return argmax(lambda x: value(game_rules,alliance,x),combos)
 
 def random_best(eliminations):
 	bests=[]
@@ -256,7 +261,7 @@ verbose_strat={
 	}
 	
 #bool->[int]->[int]->void
-def run_with_teams(eliminations,allied_teams,opponents):
+def run_with_teams(game_rules,allied_teams,opponents):
 	print 'allies:',allied_teams
 	print 'opponents:',opponents
 
@@ -277,7 +282,7 @@ def run_with_teams(eliminations,allied_teams,opponents):
 					for b1 in endgame_options:
 						for c1 in endgame_options:
 							unsorted_options.append((a,b,c,a1,b1,c1))
-	m=sorted(map(lambda x: (value(eliminations,alliance,x),x),unsorted_options))
+	m=sorted(map(lambda x: (value(game_rules,alliance,x),x),unsorted_options))
 	#for a in m[-20:]: print a
 
 	td=lambda x: tag('td',x)
@@ -358,8 +363,11 @@ if __name__=='__main__':
 	p.add_option('--general',action='store_true')
 	p.add_option('--match',type=int)
 	p.add_option('--eliminations',action='store_true')
+	p.add_option('--tower_strength',type=int,default=10)
 	options,args=p.parse_args()
 	eliminations=options.eliminations
+
+	game_rules=Game_rules(options.eliminations,options.tower_strength)
 
 	if options.general:
 		assert len(args)==0
@@ -372,9 +380,9 @@ if __name__=='__main__':
 		teams=parse_match_schedule(filename)[options.match]
 		print teams
 		if 1425 in teams['Red']:
-			run_with_teams(eliminations,teams['Read'],teams['Blue'])
+			run_with_teams(game_rules,teams['Red'],teams['Blue'])
 			sys.exit(0)
-		run_with_teams(eliminations,teams['Blue'],teams['Red'])
+		run_with_teams(game_rules,teams['Blue'],teams['Red'])
 		sys.exit(0)
 
 	if len(args)!=6:
@@ -386,5 +394,5 @@ if __name__=='__main__':
 	allied_teams=teams[0:3]
 	opponents=teams[3:6]
 
-	run_with_teams(eliminations,allied_teams,opponents)
+	run_with_teams(game_rules,allied_teams,opponents)
 
